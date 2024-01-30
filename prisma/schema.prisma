@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int           @id @default(autoincrement())
+  username          String
+  email             String
+  hashPassword      String
+  salt              String
+  role              String
+  recipes           Recipe[]
+  refreshToken      RefreshToken?
+}
+
+model RefreshToken {
+  id          Int      @id @default(autoincrement())
+  token       String   
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Recipe {
+  id                  Int             @id @default(autoincrement())
+  title               String          @db.VarChar(50)
+  description         String          @db.VarChar(250)
+  authorId            Int
+  img                 String
+  isReject            Boolean         @default(false)
+  isChecked           Boolean         @default(false)
+  holiday             Holiday         @relation(fields: [holidayId], references: [id])
+  nationalCuisine     NationalCuisine @relation(fields: [nationalCuisineId], references: [id])
+  type                Type            @relation(fields: [typeId], references: [id])
+  typeId              Int
+  holidayId           Int
+  nationalCuisineId   Int
+  ingredients         Ingredient[]
+  author              User            @relation(fields: [authorId], references: [id])                           
+  steps               Step[]
+}
+
+model Ingredient {
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar(50)
+  recipeId Int
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+}
+
+model Step {
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar(200)
+  recipeId Int
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+}
+
+model Type {
+  id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(200)
+  recipes Recipe[]
+}
+
+model Holiday {
+  id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(200)
+  recipes Recipe[]
+}
+
+model NationalCuisine {
+  id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(200)
+  recipes Recipe[]
+}
